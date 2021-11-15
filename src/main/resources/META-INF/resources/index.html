@@ -15,13 +15,17 @@ pre {
 }
 
 div.payload-preview {
+    line-height: 1.2em;
+    height: 3.6em;
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
+    /*white-space: nowrap;*/
 }
 
 div.list-group-item-text {
     margin-left: 2em;
+    /*width: 100%;*/
+    display: grid;
 }
 
 div.list-view-pf-main-info {
@@ -48,6 +52,16 @@ div.container-fluid {
     padding-right: 5px;
 }
 
+body {
+    line-height: 1;
+    /*color: #363636;*/
+    /*background-color: #fff;*/
+}
+
+.navbar-pf .navbar-options {
+    color: #f5f5f5;
+}
+
 </style>
 
 </head>
@@ -59,6 +73,9 @@ div.container-fluid {
         <a class="navbar-brand" href="/">
             <p><strong>HTTP Live log!</strong></p>
         </a>
+    </div>
+    <div class="navbar-options">
+        <input type="checkbox" id="autoexpand"/> Auto-expand
     </div>
 </nav>
 
@@ -72,11 +89,13 @@ div.container-fluid {
             <div class="list-view-pf-body">
                 <div class="list-view-pf-description">
                     <div class="list-group-item-heading">
-                        <p class="item-head">
+<!--                        <p class="item-head">-->
+                            {{time}}
+                            <br>
                             {{method}}: {{path}} ? {{query}}
                             <br>
                             {{contentType}}
-                        </p>
+<!--                        </p>-->
                     </div>
                     <div class="list-group-item-text">
                         <!--white-space: pre;-->
@@ -139,8 +158,9 @@ div.container-fluid {
             formatted = data.payload;
             highlited = hljs.highlight(formatted, {language: 'xml'}).value;
         }
-        $("#event-items").append(
+        $("#event-items").prepend(
             $newEvent.html()
+                .replace("{{time}}", new Date(data.time).toLocaleString() )
                 .replace("{{method}}", data.method)
                 .replace("{{path}}", data.path)
                 .replace("{{query}}", data.query?data.query:"")
@@ -152,6 +172,11 @@ div.container-fluid {
                 .replace("{{bodylong}}", highlited)
                 //.replace("{{body}}", PR.prettyPrintOne(formatted, "javascript", true))
         );
+        console.log($("#event-items").children().first());
+        console.log($("#event-items").children().first().find("div.pf-c-expandable-section__content"));
+        if ($('#autoexpand').is(':checked')){
+            $("#event-items").children().first().find("div.pf-c-expandable-section__content").removeAttr("hidden");
+        }
     }
 
     var connect = function() {
