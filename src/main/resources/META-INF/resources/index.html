@@ -60,7 +60,15 @@ body {
 
 .navbar-pf .navbar-options {
     color: #f5f5f5;
+    padding: 3px 0;
+    margin: 0 0 0 20px;
 }
+
+.navbar-pf .navbar-options input {
+    color: #363636;
+}
+
+
 
 </style>
 
@@ -75,7 +83,8 @@ body {
         </a>
     </div>
     <div class="navbar-options">
-        <input type="checkbox" id="autoexpand"/> Auto-expand
+        Auto-expand: <input type="checkbox" id="autoexpand"/>
+        Filter: <input type="text" size="80" id="filter"/>
     </div>
 </nav>
 
@@ -148,6 +157,13 @@ body {
         let $newEvent = $("#event-template");
         let data = JSON.parse(m.data);
         let payloadOneline = data.payload;
+        console.log("Filter val:");
+        console.log($('#filter').val());
+        console.log(data.payload.indexOf($('#filter').val()))
+        if ($('#filter').val()
+            && data.payload.indexOf($('#filter').val())<0 ) {
+            return;
+        }
         let formatted;
         let highlited;
         if (data.contentType === "application/json") {
