@@ -1,14 +1,9 @@
-package otg.obiz;
+package org.obiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.vertx.core.Future;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RequestInfo {
     private String method;

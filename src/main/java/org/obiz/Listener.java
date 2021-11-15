@@ -1,4 +1,4 @@
-package otg.obiz;
+package org.obiz;
 
 import io.quarkus.vertx.web.Body;
 import io.vertx.core.eventbus.EventBus;

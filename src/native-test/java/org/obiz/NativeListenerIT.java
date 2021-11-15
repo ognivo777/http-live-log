@@ -1,4 +1,4 @@
-package otg.obiz;
+package org.obiz;
 
 import io.quarkus.test.junit.NativeImageTest;
 
