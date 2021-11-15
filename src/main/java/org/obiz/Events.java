@@ -31,12 +31,10 @@ public class Events {
     public void consume(RequestInfo requestInfo) {
         System.out.println("ON EVENT!");
         System.out.println("requestInfo.json() = " + requestInfo.json());
-        sessions.forEach(s -> {
-            s.getAsyncRemote().sendObject(System.currentTimeMillis() + " : " + requestInfo.json(), result ->  {
-                if (result.getException() != null) {
-                    System.out.println("Unable to send message: " + result.getException());
-                }
-            });
-        });
+        sessions.forEach(s -> s.getAsyncRemote().sendObject(requestInfo.json(), result ->  {
+            if (result.getException() != null) {
+                System.out.println("Unable to send message: " + result.getException());
+            }
+        }));
     }
 }

@@ -6,6 +6,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 
 public class RequestInfo {
+    private long time;
     private String method;
     private String path;
     private String query;
@@ -14,6 +15,7 @@ public class RequestInfo {
     private String formattedPayload;
 
     public RequestInfo(String method, String path, String query, String contentType, String payload) {
+        this.time = System.currentTimeMillis();
         this.method = method;
         this.path = path;
         this.query = query;
@@ -21,12 +23,12 @@ public class RequestInfo {
         this.payload = payload;
     }
 
-    public RequestInfo(HttpServerRequest request) {
-        method = request.method().name();
-        path = request.path();
-        query = request.query();
-        contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
+    public long getTime() {
+        return time;
+    }
 
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public String getMethod() {

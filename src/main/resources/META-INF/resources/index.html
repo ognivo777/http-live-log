@@ -1,39 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <title>Quarkus Log!</title>
-<!--    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly.min.css">-->
-<!--    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly-additions.min.css">-->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.53.0/css/patternfly.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.53.0/css/patternfly-additions.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+<style>
+
+pre {
+    padding: 0;
+    line-height: 1;
+}
+
+div.payload-preview {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+div.list-group-item-text {
+    margin-left: 2em;
+}
+
+div.list-view-pf-main-info {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+div.list-group-item {
+    padding: 5px 0;
+}
+
+div.list-view-pf-description {
+    align-items: flex-start;
+}
+
+p {
+    margin: 0 0 0;
+}
+
+div.container-fluid {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="container">
-    <button id="connect" type="button">connect</button>
-    <div class="row">
-          <textarea class="col-md-8" id="events">
-            </textarea>
+<nav class="navbar navbar-default navbar-pf" role="navigation">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+            <p><strong>HTTP Live log!</strong></p>
+        </a>
     </div>
+</nav>
+
+<div id="event-items" class="container-fluid">
+
 </div>
+
+<template id='event-template'>
+    <div class="list-group-item">
+        <div class="list-view-pf-main-info">
+            <div class="list-view-pf-body">
+                <div class="list-view-pf-description">
+                    <div class="list-group-item-heading">
+                        <p class="item-head">
+                            {{method}}: {{path}} ? {{query}}
+                            <br>
+                            {{contentType}}
+                        </p>
+                    </div>
+                    <div class="list-group-item-text">
+                        <!--white-space: pre;-->
+                        <div class="payload-preview">{{body}}</div>
+                        <div class="pf-c-expandable-section">
+                            <a href="#" onclick="toggle(this.nextElementSibling);">Show more</a>
+                            <div class="pf-c-expandable-section__content" hidden>
+                                <pre><code>{{bodylong}}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.53.0/js/patternfly.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>-->
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
 
 <script type="text/javascript">
     var connected = false;
     var socket;
 
     $( document ).ready(function() {
-        $("#connect").click(connect);
+        // $("#connect").click(connect);
 
-        $("#events").change(function() {
-            scrollToBottom();
-        });
+        // $("#events").change(function() {
+        //     scrollToBottom();
+        // });
+        connect();
     });
+
+    function toggle(el) {
+        if(el.hasAttribute('hidden')) {
+            el.removeAttribute('hidden');
+        } else {
+            el.setAttribute("hidden", "");
+        }
+    }
+
+    function newMessage(m) {
+        console.log("Got message: " + m.data);
+        // $("#events").append(m.data + "\n");
+        // scrollToBottom();
+        //new mechanics
+        let $newEvent = $("#event-template");
+        let data = JSON.parse(m.data);
+        let payloadOneline = data.payload;
+        let formatted;
+        let highlited;
+        if (data.contentType === "application/json") {
+            formatted = JSON.stringify(JSON.parse(data.payload), null, 2);
+            highlited = hljs.highlight(formatted, {language: 'js'}).value;
+        } else if (data.contentType ===  "application/xml"){
+            payloadOneline = xmlEscape(data.payload);
+            formatted = data.payload;
+            highlited = hljs.highlight(formatted, {language: 'xml'}).value;
+        }
+        $("#event-items").append(
+            $newEvent.html()
+                .replace("{{method}}", data.method)
+                .replace("{{path}}", data.path)
+                .replace("{{query}}", data.query?data.query:"")
+                .replace("{{contentType}}", data.contentType)
+                // .replace("{{body}}", JSON.stringify(data.payload, null, 4))
+                .replace("{{body}}", payloadOneline)
+                // .replace("{{body}}", formatted)
+                // .replace("{{bodylong}}", hljs.highlight(formatted, {language: 'js'}).value)
+                .replace("{{bodylong}}", highlited)
+                //.replace("{{body}}", PR.prettyPrintOne(formatted, "javascript", true))
+        );
+    }
 
     var connect = function() {
         if (! connected) {
@@ -44,16 +163,15 @@
                 $("#connect").attr("disabled", true);
             };
             socket.onmessage =function(m) {
-                console.log("Got message: " + m.data);
-                $("#events").append(m.data + "\n");
-                scrollToBottom();
+                console.log(m);
+                newMessage(m);
             };
         }
     };
 
-    var scrollToBottom = function () {
-        $('#events').scrollTop($('#events')[0].scrollHeight);
-    };
+    function xmlEscape(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
 </script>
 </body>
