@@ -1,0 +1,32 @@
+name: gradle-release-build-native-macos
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install graalvm
+        uses: DeLaGuardo/setup-graalvm@3
+        with:
+          graalvm-version: '21.3.0.java11'
+      - name: Install native-image
+        run: gu install native-image
+      - name: Build native executable
+        run: ./gradlew -PprojVersion="${{ github.event.release.tag_name }}" build -Dquarkus.package.type=native
+      - name: Upload native executable
+        id: upload-native-image-macos
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build/http-live-log-${{ github.event.release.tag_name }}-runner
+          asset_name: http-live-log-${{ github.event.release.tag_name }}-macos
+          asset_label: macos
+          asset_content_type: application/octet-stream
