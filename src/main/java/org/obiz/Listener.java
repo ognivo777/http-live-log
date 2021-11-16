@@ -1,46 +1,32 @@
 package org.obiz;
 
 import io.quarkus.vertx.web.Body;
+import io.quarkus.vertx.web.Route;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.ext.web.RoutingContext;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 @Path("/")
 public class Listener {
 
+    private static Logger log = Logger.getLogger(Listener.class);
     @Inject
     EventBus bus;
 
     @GET
-    @Path("{var:.*}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.WILDCARD)
-    public String get(@Context HttpServerRequest request, @Body String body) {
-        return processRequest(request, body);
-    }
-
     @PUT
-    @Path("{var:.*}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.WILDCARD)
-    public String put(@Context HttpServerRequest request, @Body String body) {
-        return processRequest(request, body);
-    }
-
     @POST
-    @Path("{var:.*}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.WILDCARD)
-    public String post(@Context HttpServerRequest request, @Body String body) {
-        return processRequest(request, body);
-    }
-
     @DELETE
     @Path("{var:.*}")
     @Produces(MediaType.TEXT_PLAIN)
@@ -49,12 +35,19 @@ public class Listener {
         return processRequest(request, body);
     }
 
+
     private String processRequest(HttpServerRequest request, String body) {
+        List<Map.Entry<String, String>> headers = new ArrayList<>();
+        request.headers().forEach(stringStringEntry -> {
+            log.info("Header: " + stringStringEntry.getKey() + " - " + stringStringEntry.getValue());
+            headers.add(stringStringEntry);
+        });
         RequestInfo requestInfo = new RequestInfo(
                 request.method().name(),
                 request.path(),
                 request.query(),
                 request.getHeader(HttpHeaders.CONTENT_TYPE),
+                headers,
                 body
         );
 
