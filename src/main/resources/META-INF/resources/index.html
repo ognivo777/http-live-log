@@ -208,7 +208,7 @@ a {
         console.log($("#event-items").children().first());
         console.log($("#event-items").children().first().find("div.pf-c-expandable-section__content"));
         if ($('#autoexpand').is(':checked')){
-            $("#event-items").children().first().find("div.pf-c-expandable-section__content").removeAttr("hidden");
+            $("#event-items").children().first().find("div.expand-body").removeAttr("hidden");
         }
     }
 
