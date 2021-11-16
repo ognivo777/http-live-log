@@ -2,9 +2,11 @@ package org.obiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 
+@RegisterForReflection
 public class RequestInfo {
     private long time;
     private String method;
