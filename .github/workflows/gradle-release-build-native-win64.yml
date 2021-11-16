@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: build/*-runner.exe
-          asset_name: httplog-${{ github.event.release.tag_name }}-win64.exe
+          asset_path: build/http-live-log-${{ github.event.release.tag_name }}-runner.exe
+          asset_name: http-live-log-${{ github.event.release.tag_name }}-win64.exe
           asset_label: win64
           asset_content_type: application/octet-stream
