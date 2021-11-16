@@ -27,7 +27,7 @@ public class Listener {
     @POST
     @DELETE
     @Path("{var:.*}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.WILDCARD)
     @Consumes(MediaType.WILDCARD)
     public String delete(@Context HttpServerRequest request, @Body String body) {
         return processRequest(request, body);
@@ -41,7 +41,7 @@ public class Listener {
             headers.add(stringStringEntry);
         });
         RequestInfo requestInfo = new RequestInfo(
-                request.host(),
+                request.remoteAddress().host(),
                 request.method().name(),
                 request.path(),
                 request.query(),
