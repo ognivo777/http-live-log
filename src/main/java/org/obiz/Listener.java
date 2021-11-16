@@ -1,11 +1,9 @@
 package org.obiz;
 
 import io.quarkus.vertx.web.Body;
-import io.quarkus.vertx.web.Route;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.ext.web.RoutingContext;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -43,6 +41,7 @@ public class Listener {
             headers.add(stringStringEntry);
         });
         RequestInfo requestInfo = new RequestInfo(
+                request.host(),
                 request.method().name(),
                 request.path(),
                 request.query(),

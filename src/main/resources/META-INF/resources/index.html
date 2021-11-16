@@ -86,6 +86,27 @@ a {
     margin-top: 3px;
 }
 
+.request-headers {
+    margin-top: 3px;
+    margin-bottom: 5px;
+    /*background-color: #7a8f89;*/
+    width:400px;
+    /*height:100px;*/
+    float:left;
+}
+
+.request-body {
+    /*width:60%;*/
+    /*height:100px;*/
+    float:left;
+}
+
+.header-name {
+    width: 130px;
+    font-weight: bolder;
+    text-align: right;
+    float:left;
+}
 
 </style>
 
@@ -122,13 +143,18 @@ a {
                     <div class="list-group-item-text">
                         <!--white-space: pre;-->
                         <div class="info-line">
-                        {{method}}: {{path}} ? {{query}} {{contentType}}
+                        {{method}}: {{host}} {{path}} ? {{query}} {{contentType}}
                         </div>
                         <div class="payload-preview">{{body}}</div>
                         <div class="pf-c-expandable-section">
                             <a href="#" onclick="toggle(this.nextElementSibling);">Show more</a>
                             <div class="expand-body" hidden>
-                                <pre><code>{{bodylong}}</code></pre>
+                                <div class="request-headers">
+                                    {{headers}}
+                                </div>
+                                <div class="request-body">
+                                    <pre><code>{{bodylong}}</code></pre>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -195,9 +221,11 @@ a {
             $newEvent.html()
                 .replace("{{time}}", requestTime.toLocaleString().replace(",", "<br>") + "." + requestTime.getMilliseconds() )
                 .replace("{{method}}", data.method)
+                .replace("{{host}}", data.host)
                 .replace("{{path}}", data.path)
                 .replace("{{query}}", data.query?data.query.replaceAll("&", "&amp;"):"")
                 .replace("{{contentType}}", data.contentType)
+                .replace("{{headers}}", data.headers.map(value => {return "<div class='header-name'>"  +  Object.keys(value)[0] + "</div>: " + value[Object.keys(value)[0]] }).join('<br>'))
                 // .replace("{{body}}", JSON.stringify(data.payload, null, 4))
                 .replace("{{body}}", payloadOneline)
                 // .replace("{{body}}", formatted)

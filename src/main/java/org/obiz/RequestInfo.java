@@ -3,6 +3,7 @@ package org.obiz;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.vertx.codegen.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 public class RequestInfo {
     private long time;
     private String method;
+    private String host;
     private String path;
     private String query;
     private String contentType;
@@ -18,7 +20,8 @@ public class RequestInfo {
     private String formattedPayload;
     private List<Map.Entry<String, String>> headers;
 
-    public RequestInfo(String method, String path, String query, String contentType, List<Map.Entry<String, String>> headers, String payload) {
+    public RequestInfo(String host, String method, String path, String query, String contentType, List<Map.Entry<String, String>> headers, String payload) {
+        this.host = host;
         this.time = System.currentTimeMillis();
         this.method = method;
         this.path = path;
@@ -26,6 +29,14 @@ public class RequestInfo {
         this.contentType = contentType;
         this.headers = headers;
         this.payload = payload;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public List<Map.Entry<String, String>> getHeaders() {
