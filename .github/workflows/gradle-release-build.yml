@@ -18,7 +18,7 @@ jobs:
       - name: Install native-image
         run: gu install native-image
       - name: Build jvm jar
-        run: gradle -Dorg.gradle.daemon=false -PprojVersion="${{ github.event.release.tag_name }}" build
+        run: gradle -PprojVersion="${{ github.event.release.tag_name }}" build
       - name: Upload jvm
         id: upload-jar
         uses: actions/upload-release-asset@v1
@@ -31,7 +31,7 @@ jobs:
           asset_label: jar
           asset_content_type: application/octet-stream
       - name: Build native executable
-        run: gradle -Dorg.gradle.daemon=false -PprojVersion="${{ github.event.release.tag_name }}" build -Dquarkus.package.type=native
+        run: gradle -PprojVersion="${{ github.event.release.tag_name }}" build -Dquarkus.package.type=native
       - name: Upload native executable
         id: upload-native-executable
         uses: actions/upload-release-asset@v1

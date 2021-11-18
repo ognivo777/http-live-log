@@ -49,9 +49,6 @@ public class Listener {
                 headers,
                 body
         );
-
-        String json = requestInfo.json();
-        System.out.println("json to send = " + json);
         bus.send("new-request", requestInfo);
         return requestInfo.getMethod() + ":\n" + requestInfo.getPath() + "\n" + requestInfo.getQuery() + "\n" + requestInfo.getContentType();
     }

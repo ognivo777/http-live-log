@@ -18,7 +18,7 @@ jobs:
       - name: Install native-image
         run: gu install native-image
       - name: Build native executable
-        run: gradle -Dorg.gradle.daemon=false -PprojVersion="${{ github.event.release.tag_name }}" build -Dquarkus.package.type=native
+        run: gradle -PprojVersion="${{ github.event.release.tag_name }}" build -Dquarkus.package.type=native
       - name: Upload native executable
         id: upload-native-image-macos
         uses: actions/upload-release-asset@v1

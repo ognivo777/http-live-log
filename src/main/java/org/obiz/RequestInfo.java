@@ -3,13 +3,16 @@ package org.obiz;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.vertx.codegen.annotations.Nullable;
+import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.Map;
 
+
 @RegisterForReflection
 public class RequestInfo {
+    private static Logger log = Logger.getLogger(RequestInfo.class);
+
     private long time;
     private String method;
     private String host;
@@ -108,7 +111,7 @@ public class RequestInfo {
         try {
             return mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Cant create JSON for RequestInfo!", e);
             return "{\"error\":\"" + e.getMessage() + "\"}";
         }
     }
