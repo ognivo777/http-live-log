@@ -6,12 +6,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
-
-//    private final ConcurrentHashMap<Long, Transit> records = new ConcurrentHashMap<>();
-
     StringBuilder responseData = new StringBuilder();
     private Charset charset;
 
@@ -22,14 +18,13 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-        final Long id = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
+        final Transit t = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
 
         if (msg instanceof HttpRequest) {
-            System.out.println("REQUEST id = " + id);
-
+            System.out.println("REQUEST id = " + t.getId());
             HttpRequest request = (HttpRequest) msg;
 //            records.put(id, new Transit(id, request));
+            t.addRequest(request);
 
             responseData.append("----=====REQUEST====----");
             responseData.append(request.method());
@@ -41,9 +36,10 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
         }
 
         if (msg instanceof HttpResponse) {
-            System.out.println("RESPONSE id = " + id);
+            System.out.println("RESPONSE id = " + t.getId());
             HttpResponse response = (HttpResponse) msg;
 //            records.get(id).addResponse(response);
+            t.addResponse(response);
             responseData.append("----=====RESPONSE====----");
             charset = HttpUtil.getCharset(response);
             response.headers().forEach(entry -> {
@@ -52,8 +48,9 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
         }
 
         if (msg instanceof HttpContent) {
-            System.out.println("CONTENT id = " + id);
+            System.out.println("CONTENT id = " + t.getId());
             HttpContent httpContent = (HttpContent) msg;
+            t.addContent(httpContent);
 //            records.get(id).addContent(httpContent);
             ByteBuf content = httpContent.content();
 //            if (content.isReadable()) {
@@ -66,9 +63,9 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
 //            responseData.append("\nBODY:").append(trailer.content().toString(charset));
             System.out.println("=====================");
 //            final Transit transit = records.get(id);
-//            if(transit.isFinished()) {
-//                System.out.println("response time: " + transit.responseTime());
-//            }
+            if(t.isFinished()) {
+                System.out.println("response time: " + t.responseTime());
+            }
             System.out.println("DATA:\n" + responseData);
             responseData.setLength(0);
         }

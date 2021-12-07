@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 
-    public static final AttributeKey<Long> key = AttributeKey.newInstance("request num");
+    public static final AttributeKey<Transit> key = AttributeKey.newInstance("request num");
     private static AtomicLong counter = new AtomicLong();
 
     private final String remoteHost;
@@ -60,9 +60,10 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
         if (outboundChannel.isActive()) {
-            final Long id = counter.incrementAndGet();
-            outboundChannel.attr(key).set(id);
-            copyInboundChannel.attr(key).set(id);
+            final long id = counter.incrementAndGet();
+            final Transit value = new Transit(id);
+            outboundChannel.attr(key).set(value);
+            copyInboundChannel.attr(key).set(value);
             forwardAndDump(ctx, msg, outboundChannel, copyInboundChannel);
 //            forwardAndDump(ctx, msg, outboundChannel);
         }

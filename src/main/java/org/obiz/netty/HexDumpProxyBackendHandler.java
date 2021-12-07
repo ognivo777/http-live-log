@@ -36,10 +36,10 @@ public class HexDumpProxyBackendHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-        final Long requestNum = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
-//        log.info("Response part for request: " + requestNum);
-        System.out.println("Response part for request: " + requestNum);
-        copyOutboundChannel.attr(HexDumpProxyFrontendHandler.key).set(requestNum);
+        final Transit transit = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
+//        log.info("Response part for request: " + transit);
+        System.out.println("Response part for request: " + transit.getId());
+        copyOutboundChannel.attr(HexDumpProxyFrontendHandler.key).set(transit);
         HexDumpProxyFrontendHandler.forwardAndDump(ctx, msg, inboundChannel, copyOutboundChannel);
     }
 

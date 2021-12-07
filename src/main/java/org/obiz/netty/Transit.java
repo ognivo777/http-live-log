@@ -13,14 +13,18 @@ public class Transit {
     private HttpResponse response;
     private HttpContent responseContent;
 
-    public Transit(long id, HttpRequest request) {
+    public Transit(long id) {
         this.id = id;
-        this.request = request;
         this.startTime = System.currentTimeMillis();
+    }
+
+    public void addRequest(HttpRequest request) {
+        this.request = request;
     }
 
     public void addResponse(HttpResponse response) {
         this.response = response;
+        this.endTime = System.currentTimeMillis();
     }
 
     public void addContent(HttpContent httpContent) {
@@ -37,5 +41,9 @@ public class Transit {
 
     public long responseTime() {
         return endTime - startTime;
+    }
+
+    public long getId() {
+        return id;
     }
 }
