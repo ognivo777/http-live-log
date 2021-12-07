@@ -30,11 +30,13 @@ public class Listener {
     @Produces(MediaType.WILDCARD)
     @Consumes(MediaType.WILDCARD)
     public String delete(@Context HttpServerRequest request, @Body String body) {
-        return processRequest(request, body);
+        RequestInfo requestInfo = processRequest(request, body);
+        bus.send("new-request", requestInfo);
+        return requestInfo.getMethod() + ":\n" + requestInfo.getPath() + "\n" + requestInfo.getQuery() + "\n" + requestInfo.getContentType();
     }
 
 
-    private String processRequest(HttpServerRequest request, String body) {
+    public static RequestInfo processRequest(HttpServerRequest request, String body) {
         List<Map.Entry<String, String>> headers = new ArrayList<>();
         request.headers().forEach(stringStringEntry -> {
             log.info("Header: " + stringStringEntry.getKey() + " - " + stringStringEntry.getValue());
@@ -49,7 +51,6 @@ public class Listener {
                 headers,
                 body
         );
-        bus.send("new-request", requestInfo);
-        return requestInfo.getMethod() + ":\n" + requestInfo.getPath() + "\n" + requestInfo.getQuery() + "\n" + requestInfo.getContentType();
+        return requestInfo;
     }
 }
