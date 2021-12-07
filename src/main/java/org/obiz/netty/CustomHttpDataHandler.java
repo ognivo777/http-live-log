@@ -6,12 +6,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 
 import java.nio.charset.Charset;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
 
+//    private final ConcurrentHashMap<Long, Transit> records = new ConcurrentHashMap<>();
+
     StringBuilder responseData = new StringBuilder();
     private Charset charset;
-
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -21,8 +23,14 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
 
+        final Long id = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
+
         if (msg instanceof HttpRequest) {
+            System.out.println("REQUEST id = " + id);
+
             HttpRequest request = (HttpRequest) msg;
+//            records.put(id, new Transit(id, request));
+
             responseData.append("----=====REQUEST====----");
             responseData.append(request.method());
             responseData.append(" ").append(request.uri());
@@ -33,7 +41,9 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
         }
 
         if (msg instanceof HttpResponse) {
+            System.out.println("RESPONSE id = " + id);
             HttpResponse response = (HttpResponse) msg;
+//            records.get(id).addResponse(response);
             responseData.append("----=====RESPONSE====----");
             charset = HttpUtil.getCharset(response);
             response.headers().forEach(entry -> {
@@ -42,24 +52,26 @@ public class CustomHttpDataHandler extends SimpleChannelInboundHandler {
         }
 
         if (msg instanceof HttpContent) {
+            System.out.println("CONTENT id = " + id);
             HttpContent httpContent = (HttpContent) msg;
+//            records.get(id).addContent(httpContent);
             ByteBuf content = httpContent.content();
-            if (content.isReadable()) {
-                responseData.append(content.toString(charset));
-            }
+//            if (content.isReadable()) {
+                responseData.append("\n").append(content.toString(charset));
+//            }
         }
 
         if (msg instanceof LastHttpContent) {
 //            LastHttpContent trailer = (LastHttpContent) msg;
-            System.out.println("=====================\nDATA:\n" + responseData);
+//            responseData.append("\nBODY:").append(trailer.content().toString(charset));
+            System.out.println("=====================");
+//            final Transit transit = records.get(id);
+//            if(transit.isFinished()) {
+//                System.out.println("response time: " + transit.responseTime());
+//            }
+            System.out.println("DATA:\n" + responseData);
             responseData.setLength(0);
         }
-
-
-//        if (responseData.length()!=0) {
-//            System.out.println("DATA:\n" + responseData);
-//            responseData.setLength(0);
-//        }
 
     }
 }

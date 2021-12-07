@@ -6,8 +6,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.util.AttributeKey;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
+
+    public static final AttributeKey<Long> key = AttributeKey.newInstance("request num");
+    private static AtomicLong counter = new AtomicLong();
 
     private final String remoteHost;
     private final int remotePort;
@@ -54,6 +60,9 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
         if (outboundChannel.isActive()) {
+            final Long id = counter.incrementAndGet();
+            outboundChannel.attr(key).set(id);
+            copyInboundChannel.attr(key).set(id);
             forwardAndDump(ctx, msg, outboundChannel, copyInboundChannel);
 //            forwardAndDump(ctx, msg, outboundChannel);
         }
@@ -63,6 +72,7 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
         ByteBuf dupBuf = ((ByteBuf) msg).copy();
         embeddedChannel.writeInbound(dupBuf);
         embeddedChannel.readInbound();
+
         forwardAndDump(ctx, msg, outboundChannel);
     }
 

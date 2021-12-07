@@ -7,8 +7,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultChannelConfig;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.vertx.core.json.impl.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HexDumpProxyBackendHandler extends ChannelInboundHandlerAdapter {
+    private static Logger log = LoggerFactory.getLogger(HexDumpProxyBackendHandler.class);
 
     private final Channel inboundChannel;
     private EmbeddedChannel copyOutboundChannel;
@@ -32,6 +36,10 @@ public class HexDumpProxyBackendHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
+        final Long requestNum = ctx.channel().attr(HexDumpProxyFrontendHandler.key).get();
+//        log.info("Response part for request: " + requestNum);
+        System.out.println("Response part for request: " + requestNum);
+        copyOutboundChannel.attr(HexDumpProxyFrontendHandler.key).set(requestNum);
         HexDumpProxyFrontendHandler.forwardAndDump(ctx, msg, inboundChannel, copyOutboundChannel);
     }
 
